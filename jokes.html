@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+<head><title>😂 Шутки API</title>
+<style>body{font-family:Arial;max-width:600px;margin:50px auto;padding:20px;}
+button{background:#ff6b35;color:white;padding:15px 30px;border:none;border-radius:25px;cursor:pointer;font-size:18px;}
+button:hover{background:#e55a2b;} #result{margin-top:20px;padding:20px;background:#f8f9fa;border-radius:10px;} .joke{font-size:22px;}</style>
+</head>
+<body>
+<h1>😂 Шутки API</h1>
+<button onclick="getJoke()">Получить шутку</button>
+<div id="result">Жми кнопку!</div>
+<script>
+async function getJoke(){ 
+    document.getElementById('result').innerHTML='⏳ Ловлю шутку...';
+    try{
+        const res=await fetch('https://official-joke-api.appspot.com/random_joke');
+        const data=await res.json();
+        document.getElementById('result').innerHTML=`
+            <div class="joke">${data.setup}</div>
+            <p><strong>${data.punchline}</strong></p>
+        `;
+    }catch(e){
+        document.getElementById('result').innerHTML='😿 Шутка не зашла';
+    }
+}
+</script>
+</body>
+</html>

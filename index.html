@@ -1,39 +1,17 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>🐱 Котик-тестер API</title>
-    <style>
-        body { font-family: Arial; max-width: 600px; margin: 50px auto; padding: 20px; }
-        button { background: #ff69b4; color: white; padding: 15px 30px; border: none; border-radius: 25px; cursor: pointer; font-size: 18px; }
-        button:hover { background: #ff1493; }
-        #result { margin-top: 20px; padding: 20px; background: #f0f8ff; border-radius: 10px; min-height: 100px; }
-        .fact { font-size: 24px; font-style: italic; color: #333; }
-    </style>
+<head><title>Кодинг-портал</title>
+<style>body{font-family:Arial;max-width:600px;margin:50px auto;padding:20px;}
+a{display:block;background:#007bff;color:white;padding:15px;margin:10px 0;text-decoration:none;border-radius:8px;}
+a:hover{background:#0056b3;}</style>
 </head>
 <body>
-    <h1>🐱 КотО-тестер API</h1>
-    <p>Нажми кнопку — получи случайный факт о котах!</p>
-    
-    <button onclick="getCatFact()">Дай факт о котике 🐾</button>
-    
-    <div id="result">Нажми кнопку для начала!</div>
-
-    <script>
-        async function getCatFact() {
-            document.getElementById('result').innerHTML = '⏳ Ловлю факт о котике...';
-            
-            try {
-                const response = await fetch('https://catfact.ninja/fact');
-                const data = await response.json();
-                
-                document.getElementById('result').innerHTML = `
-                    <div class="fact">${data.fact}</div>
-                    <p><small>Длина: ${data.length} символов</small></p>
-                `;
-            } catch (error) {
-                document.getElementById('result').innerHTML = '❌ Ошибка котика 😿';
-            }
-        }
-    </script>
+<h1>🚀 Кодинг-портал AIEvdokimov</h1>
+<a href="cats.html">🐱 API Котики (факты)</a>
+<a href="jokes.html">😂 API Шутки</a>
+<a href="tasks/task1.html">⚡ Задача 1 (JS)</a>
+<a href="tasks/task2.html">⚡ Задача 2 (DOM)</a>
+<p><small>Все проекты на отдельных страницах!</small></p>
 </body>
 </html>
+

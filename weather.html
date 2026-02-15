@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html>
+<head><title>🌤️ Погода</title>
+<style>body{font-family:Arial;max-width:600px;margin:50px auto;padding:20px;}
+input{width:100%;padding:15px;margin:10px 0;border:1px solid #ddd;border-radius:5px;}
+button{background:#28a745;color:white;padding:15px;border:none;border-radius:5px;cursor:pointer;}
+#result{margin-top:20px;padding:20px;background:#f0f8ff;border-radius:10px;}</style>
+</head>
+<body>
+<h1>🌤️ Погода API</h1>
+<input id="city" placeholder="Москва, London, Paris...">
+<button onclick="getWeather()">Узнать погоду</button>
+<div id="result">Введи город</div>
+<script>
+async function getWeather(){
+    const city=document.getElementById('city').value||'Moscow';
+    document.getElementById('result').innerHTML='⏳ Загружаю...';
+    try{
+        // Open-Meteo API (БЕЗ КЛЮЧА!)
+        const res=await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${city}&count=1&language=ru`);
+        const data=await res.json();
+        if(data.results?.[0]){
+            const {latitude,longitude}=data.results[0];
+            const weatherRes=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&temperature_unit=celsius&wind_speed_unit=kmh&precipitation_unit=mm&timezone=auto`);
+            const weather=await weatherRes.json();
+            const w=weather.current_weather;
+            document.getElementById('result').innerHTML=`
+                <h2>${city}</h2>
+                <p>🌡️ ${w.temperature}°C</p>
+                <p>💨 ${w.windspeed} км/ч</p>
+            `;
+        }
+    }catch(e){
+        document.getElementById('result').innerHTML='❌ Город не найден';
+    }
+}
+</script>
+</body>
+</html>
