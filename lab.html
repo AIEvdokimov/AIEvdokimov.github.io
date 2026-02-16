@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Лаборатория API</title>
+  <style>
+    body { font-family: Arial; max-width: 900px; margin: 30px auto; padding: 20px; }
+    nav { margin-bottom: 20px; }
+    nav button {
+      margin: 5px;
+      padding: 8px 12px;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      background: #007bff;
+      color: #fff;
+      font-size: 14px;
+    }
+    nav button.active { background: #0056b3; }
+    .page { display: none; margin-top: 10px; padding: 15px; border-radius: 8px; background: #f7f7f7; }
+    .page.active { display: block; }
+    .fact { font-size: 24px; }
+    .joke { font-size: 22px; }
+    .anekdot { font-size: 22px; line-height: 1.4; }
+    .proverb { font-size: 24px; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <h1>🧪 Лаборатория API</h1>
+
+  <nav>
+    <button onclick="showPage('cats')" id="btn-cats">🐱 Котики</button>
+    <button onclick="showPage('jokes')" id="btn-jokes">😂 Шутки</button>
+    <button onclick="showPage('weather')" id="btn-weather">🌤 Погода</button>
+    <button onclick="showPage('anekdots')" id="btn-anekdots">🤣 Анекдоты</button>
+    <button onclick="showPage('proverbs')" id="btn-proverbs">📜 Пословицы</button>
+    <button onclick="showPage('task1')" id="btn-task1">⚡ Задача 1</button>
+  </nav>
+
+  <!-- Котики -->
+  <section id="page-cats" class="page">
+    <h2>🐱 Котики + Перевод</h2>
+    <button onclick="getTranslatedCat()">🐾 Факт + Перевод</button>
+    <div id="cats-result">Жми!</div>
+  </section>
+
+  <!-- Шутки -->
+  <section id="page-jokes" class="page">
+    <h2>😂 Шутки API</h2>
+    <button onclick="getJoke()">Получить шутку</button>
+    <div id="jokes-result">Жми кнопку!</div>
+  </section>
+
+  <!-- Погода -->
+  <section id="page-weather" class="page">
+    <h2>🌤 Погода API</h2>
+    <input id="city" placeholder="Москва, London, Paris...">
+    <button onclick="getWeather()">Узнать погоду</button>
+    <div id="weather-result">Введи город</div>
+  </section>
+
+  <!-- Анекдоты -->
+  <section id="page-anekdots" class="page">
+    <h2>🤣 Анекдоты</h2>
+    <button onclick="getAnekdot()">Новый анекдот 🇷🇺</button>
+    <div id="anekdot-result">Жми кнопку!</div>
+  </section>
+
+  <!-- Пословицы -->
+  <section id="page-proverbs" class="page">
+    <h2>📜 Пословицы</h2>
+    <button onclick="getProverb()">Случайная пословица</button>
+    <div id="proverb-result">Жми!</div>
+  </section>
+
+  <!-- Задача -->
+  <section id="page-task1" class="page">
+    <h2>⚡ Задача 1</h2>
+    <textarea id="code" placeholder="Напиши fetch к любому API..." style="width:100%;height:100px;">fetch('https://api.github.com/users/AIEvdokimov')</textarea><br>
+    <button onclick="runCode()">Запустить код</button>
+    <div id="task-result">Твой код здесь</div>
+  </section>
+
+  <p style="margin-top: 30px;"><a href="index.html">🏠 На главную</a></p>
+
+  <script>
+    // Навигация между секциями
+    function showPage(name) {
+      document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+      document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+      document.getElementById('page-' + name).classList.add('active');
+      document.getElementById('btn-' + name).classList.add('active');
+    }
+    showPage('cats'); // стартовая страница
+
+    // 🐱 КОТИКИ
+    async function getTranslatedCat(){
+      const result = document.getElementById('cats-result');
+      result.innerHTML = '⏳ Ловлю котика...';
+      try {
+        const catRes = await fetch('https://catfact.ninja/fact');
+        const catData = await catRes.json();
+        const translateRes = await fetch('https://libretranslate.com/translate', {
+          method: 'POST',
+          body: JSON.stringify({
+            q: catData.fact,
+            source: 'en',
+            target: 'ru',
+            format: 'text'
+          }),
+          headers: {'Content-Type': 'application/json'}
+        });
+        const translated = await translateRes.json();
+        result.innerHTML = `
+          <div class="fact">${translated.translatedText}</div>
+          <p><small>Оригинал: ${catData.fact}</small></p>
+        `;
+      } catch(e) {
+        result.innerHTML = '😿 Котик потерялся';
+      }
+    }
+
+    // 😂 ШУТКИ
+    async function getJoke() {
+      const result = document.getElementById('jokes-result');
+      result.innerHTML = '⏳ Ловлю шутку...';
+      try {
+        const res = await fetch('https://official-joke-api.appspot.com/random_joke');
+        const data = await res.json();
+        result.innerHTML = `
+          <div class="joke">${data.setup}</div>
+          <p><strong>${data.punchline}</strong></p>
+        `;
+      } catch(e) {
+        result.innerHTML = '😿 Шутка не зашла';
+      }
+    }
+
+    // 🌤 ПОГОДА
+    async function getWeather() {
+      const city = document.getElementById('city').value || 'Moscow';
+      const result = document.getElementById('weather-result');
+      result.innerHTML = '⏳ Загружаю...';
+      try {
+        const res = await fetch(`https://geocoding-api.open-meteo.com/v1/search?name=${city}&count=1&language=ru`);
+        const data = await res.json();
+        if (data.results?.[0]) {
+          const {latitude, longitude} = data.results[0];
+          const weatherRes = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${latitude}&longitude=${longitude}&current_weather=true&temperature_unit=celsius&wind_speed_unit=kmh&precipitation_unit=mm&timezone=auto`);
+          const weather = await weatherRes.json();
+          const w = weather.current_weather;
+          result.innerHTML = `
+            <h3>${city}</h3>
+            <p>🌡️ ${w.temperature}°C</p>
+            <p>💨 ${w.windspeed} км/ч</p>
+          `;
+        } else {
+          result.innerHTML = '❌ Город не найден';
+        }
+      } catch(e) {
+        result.innerHTML = '❌ Ошибка погоды';
+      }
+    }
+
+    // 🤣 АНЕКДОТЫ (заменил на прокси)
+    async function getAnekdot() {
+      const result = document.getElementById('anekdot-result');
+      result.innerHTML = '⏳ Ловлю анекдот...';
+      try {
+        const res = await fetch('https://api.allorigins.win/raw?url=' + encodeURIComponent('http://rzhunemogu.ru/RandJSON.aspx?CType=1'));
+        const text = await res.text();
+        const json = text.match(/\[.*\]/)[0];
+        const data = JSON.parse(json);
+        result.innerHTML = `<div class="anekdot">${data[0]}</div>`;
+      } catch(e) {
+        result.innerHTML = '😿 Анекдоты закончились';
+      }
+    }
+
+    // 📜 ПОСЛОВИЦЫ
+    const proverbs = [
+      "Не все то золото, что блестит",
+      "Волков бояться - в лес не ходить", 
+      "Кто рано встает - тому Бог подает",
+      "Делу время - потехе час",
+      "Семь раз отмерь - один отрежь",
+      "Под лежачий камень вода не течет"
+    ];
+    function getProverb() {
+      const random = proverbs[Math.floor(Math.random() * proverbs.length)];
+      document.getElementById('proverb-result').innerHTML = `<div class="proverb">«${random}»</div>`;
+    }
+
+    // ⚡ ЗАДАЧА 1
+    function runCode() {
+      const code = document.getElementById('code').value;
+      const result = document.getElementById('task-result');
+      result.innerHTML = '⏳ Выполняю...';
+      try {
+        eval(code).then(data => {
+          result.innerHTML = `<pre>${JSON.stringify(data, null, 2)}</pre>`;
+        }).catch(e => {
+          result.innerHTML = `❌ Ошибка: ${e.message}`;
+        });
+      } catch(e) {
+        result.innerHTML = `❌ Синтаксис: ${e.message}`;
+      }
+    }
+  </script>
+</body>
+</html>
